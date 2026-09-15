@@ -1,0 +1,387 @@
+---
+const groups = [
+  { label: "Frontend", items: ["Astro", "React", "TypeScript", "Tailwind v4"] },
+  { label: "Interacción & Motion", items: ["GSAP", "Three.js", "Canvas API", "Lenis"] },
+  { label: "Fundamentos & Seguridad", items: ["JavaScript", "Git", "OWASP", "Linux"] },
+];
+---
+
+<section id="habilidades" class="min-h-screen py-32 px-4 md:px-8 max-w-7xl mx-auto w-full relative">
+  <!-- Glowing backdrop -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-[130px] pointer-events-none"></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+    <!-- Left Column: Copy & Skill Groups -->
+    <div class="lg:col-span-5 flex flex-col gap-10">
+      <div class="flex flex-col items-start text-left gap-4">
+        <div class="font-mono text-xs text-neon-violet tracking-widest uppercase">/ capacidades-tecnicas</div>
+        <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white font-sans">
+          Red de Habilidades
+        </h2>
+        <p class="text-text-secondary max-w-md text-sm md:text-base leading-relaxed">
+          Una red interactiva que muestra las tecnologías con las que trabajo. Pasa el cursor sobre los nodos para ver cómo se conectan y reaccionan físicamente.
+        </p>
+      </div>
+
+      <!-- Skill Groups (spec-sheet style, not a decorative list) -->
+      <div class="flex flex-col gap-6">
+        {groups.map((group) => (
+          <div class="flex flex-col gap-3 border-l-2 border-neon-cyan/30 pl-4">
+            <span class="font-mono text-[10px] text-text-muted uppercase tracking-widest">{group.label}</span>
+            <div class="flex flex-wrap gap-2">
+              {group.items.map((item) => (
+                <span class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-xs font-mono text-text-secondary hover:border-neon-cyan/40 hover:text-white hover:bg-neon-cyan/5 transition-all duration-300">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Right Column: Graph Playground (open field, not boxed) -->
+    <div
+      id="skills-board"
+      class="lg:col-span-7 w-full h-[420px] md:h-[500px] relative overflow-visible select-none"
+    >
+      <!-- Ambient drift: two soft blobs give the field depth and bleed past its edges -->
+      <div class="absolute -top-16 -left-10 w-72 h-72 bg-neon-cyan/10 rounded-full blur-[90px] pointer-events-none animate-board-drift-a"></div>
+      <div class="absolute -bottom-16 -right-10 w-80 h-80 bg-neon-pink/10 rounded-full blur-[100px] pointer-events-none animate-board-drift-b"></div>
+
+      <!-- Background grid texture, clipped to the field bounds -->
+      <div class="absolute inset-0 rounded-3xl overflow-hidden bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+
+      <!-- Status tag, same device as the hero's availability badge -->
+      <div class="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 border border-white/5 font-mono text-[9px] text-neon-cyan uppercase tracking-widest select-none">
+        <span class="relative flex h-1.5 w-1.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-cyan opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-neon-cyan"></span>
+        </span>
+        Simulación en vivo
+      </div>
+
+      <!-- SVG Wires Container -->
+      <svg id="skills-wires" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+
+      <!-- Floating Node Elements are generated here dynamically -->
+      <div id="skills-nodes-container" class="absolute inset-0 z-10 w-full h-full"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  interface Node {
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    radius: number;
+    color: string;
+    glow: string;
+    el: HTMLElement | null;
+    originalRadius: number;
+  }
+
+  interface Link {
+    source: string;
+    target: string;
+  }
+
+  let animationFrameId = 0;
+
+  function initSkillsGraph() {
+    const board = document.getElementById('skills-board');
+    const nodesContainer = document.getElementById('skills-nodes-container');
+    const svgContainer = document.getElementById('skills-wires');
+    
+    if (!board || !nodesContainer || !svgContainer) return;
+
+    // Remove any leftover children in case of reload
+    nodesContainer.innerHTML = '';
+    svgContainer.innerHTML = '';
+
+    const width = board.clientWidth;
+    const height = board.clientHeight;
+
+    // Define Node parameters
+    const initialNodes: Omit<Node, 'x' | 'y' | 'vx' | 'vy' | 'radius' | 'el'>[] = [
+      { id: 'astro', label: 'Astro', color: '#ff5e00', glow: 'rgba(255, 94, 0, 0.4)', originalRadius: 45 },
+      { id: 'react', label: 'React', color: '#00f0ff', glow: 'rgba(0, 240, 255, 0.4)', originalRadius: 45 },
+      { id: 'tailwind', label: 'Tailwind v4', color: '#38bdf8', glow: 'rgba(56, 189, 248, 0.4)', originalRadius: 45 },
+      { id: 'gsap', label: 'GSAP', color: '#82d71b', glow: 'rgba(130, 215, 27, 0.4)', originalRadius: 40 },
+      { id: 'ts', label: 'TypeScript', color: '#3178c6', glow: 'rgba(49, 120, 198, 0.4)', originalRadius: 45 },
+      { id: 'js', label: 'JavaScript', color: '#f7df1e', glow: 'rgba(247, 223, 30, 0.4)', originalRadius: 40 },
+      { id: 'rust', label: 'Rust/Wasm', color: '#f05032', glow: 'rgba(240, 80, 50, 0.4)', originalRadius: 45 },
+      { id: 'next', label: 'Next.js', color: '#ffffff', glow: 'rgba(255, 255, 255, 0.4)', originalRadius: 45 },
+      { id: 'three', label: 'Three.js', color: '#ff9900', glow: 'rgba(255, 153, 0, 0.4)', originalRadius: 40 }
+    ];
+
+    // Node placement around circle
+    const nodes: Node[] = initialNodes.map((n, i) => {
+      const angle = (i / initialNodes.length) * Math.PI * 2;
+      const r = Math.min(width, height) * 0.35;
+      return {
+        ...n,
+        x: width / 2 + Math.cos(angle) * r,
+        y: height / 2 + Math.sin(angle) * r,
+        vx: 0,
+        vy: 0,
+        radius: n.originalRadius,
+        el: null
+      };
+    });
+
+    // Define links
+    const links: Link[] = [
+      { source: 'astro', target: 'tailwind' },
+      { source: 'astro', target: 'js' },
+      { source: 'astro', target: 'ts' },
+      { source: 'react', target: 'ts' },
+      { source: 'react', target: 'next' },
+      { source: 'tailwind', target: 'react' },
+      { source: 'gsap', target: 'js' },
+      { source: 'gsap', target: 'three' },
+      { source: 'ts', target: 'rust' },
+      { source: 'three', target: 'react' },
+      { source: 'next', target: 'tailwind' }
+    ];
+
+    // Instantiate HTML node pills
+    nodes.forEach((node) => {
+      const div = document.createElement('div');
+      div.className = 'absolute flex items-center justify-center font-mono text-xs font-semibold px-4 py-2 border rounded-full text-white shadow-lg select-none transition-shadow duration-300';
+      div.style.backgroundColor = 'rgba(13, 12, 22, 0.8)';
+      div.style.borderColor = node.color + '40';
+      div.innerText = node.label;
+      
+      // Hover event listeners inside standard browser scope
+      div.addEventListener('mouseenter', () => {
+        node.radius = node.originalRadius * 1.35;
+        div.style.boxShadow = `0 0 25px ${node.glow}`;
+        div.style.borderColor = node.color;
+      });
+
+      div.addEventListener('mouseleave', () => {
+        node.radius = node.originalRadius;
+        div.style.boxShadow = 'none';
+        div.style.borderColor = node.color + '40';
+      });
+
+      nodesContainer.appendChild(div);
+      node.el = div;
+    });
+
+    // Instantiate SVG connection lines
+    const svgLines: { sourceNode: Node; targetNode: Node; lineEl: SVGLineElement }[] = [];
+    links.forEach((link) => {
+      const sourceNode = nodes.find((n) => n.id === link.source);
+      const targetNode = nodes.find((n) => n.id === link.target);
+
+      if (sourceNode && targetNode) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('stroke', 'rgba(255, 255, 255, 0.08)');
+        line.setAttribute('stroke-width', '1.5');
+        svgContainer.appendChild(line);
+        svgLines.push({ sourceNode, targetNode, lineEl: line });
+      }
+    });
+
+    // Mouse tracking. The handler only latches the raw viewport coordinates —
+    // converting them to board-local space needs getBoundingClientRect(), which
+    // forces layout, so that read happens once per physics frame instead of
+    // once per mousemove event.
+    let pointerClientX = -9999;
+    let pointerClientY = -9999;
+    let mouseX = -9999;
+    let mouseY = -9999;
+    let isHoveringBoard = false;
+
+    board.addEventListener('mousemove', (e) => {
+      pointerClientX = e.clientX;
+      pointerClientY = e.clientY;
+      isHoveringBoard = true;
+    });
+
+    board.addEventListener('mouseleave', () => {
+      pointerClientX = -9999;
+      pointerClientY = -9999;
+      mouseX = -9999;
+      mouseY = -9999;
+      isHoveringBoard = false;
+    });
+
+    // Physics constants
+    const centerPullStrength = 0.003;
+    const linkStrength = 0.06;
+    const linkLength = 130;
+    const repulsionStrength = 320;
+    const mouseRepelStrength = 400;
+    const friction = 0.88;
+
+    // Only spend CPU on the physics loop while the board is actually on screen
+    let isBoardVisible = false;
+
+    function updatePhysics() {
+      const center = { x: width / 2, y: height / 2 };
+
+      // Single layout read per frame, shared by the mouse-repulsion pass below
+      if (isHoveringBoard) {
+        const rect = board!.getBoundingClientRect();
+        mouseX = pointerClientX - rect.left;
+        mouseY = pointerClientY - rect.top;
+      }
+
+      // 1. Pull towards center
+      nodes.forEach((n) => {
+        n.vx += (center.x - n.x) * centerPullStrength;
+        n.vy += (center.y - n.y) * centerPullStrength;
+      });
+
+      // 2. Repel nodes from each other
+      for (let i = 0; i < nodes.length; i++) {
+        const n1 = nodes[i];
+        for (let j = i + 1; j < nodes.length; j++) {
+          const n2 = nodes[j];
+          const dx = n2.x - n1.x;
+          const dy = n2.y - n1.y;
+          const dist = Math.hypot(dx, dy) || 1;
+
+          const minDist = n1.radius + n2.radius + 30;
+          if (dist < minDist) {
+            const overlap = minDist - dist;
+            const force = (overlap / minDist) * repulsionStrength;
+            
+            // Push away proportional to distance
+            const fx = (dx / dist) * force;
+            const fy = (dy / dist) * force;
+
+            n1.vx -= fx * 0.02;
+            n1.vy -= fy * 0.02;
+            n2.vx += fx * 0.02;
+            n2.vy += fy * 0.02;
+          }
+        }
+      }
+
+      // 3. Solve Springs (links between nodes)
+      svgLines.forEach(({ sourceNode: s, targetNode: t }) => {
+        const dx = t.x - s.x;
+        const dy = t.y - s.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        
+        // Hooke's Law: Force is proportional to displacement
+        const diff = dist - linkLength;
+        const force = diff * linkStrength * 0.1;
+        
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+
+        s.vx += fx;
+        s.vy += fy;
+        t.vx -= fx;
+        t.vy -= fy;
+      });
+
+      // 4. Mouse Repulsion
+      if (isHoveringBoard) {
+        nodes.forEach((n) => {
+          const dx = n.x - mouseX;
+          const dy = n.y - mouseY;
+          const dist = Math.hypot(dx, dy) || 1;
+          const triggerDist = 120;
+
+          if (dist < triggerDist) {
+            const force = (triggerDist - dist) / triggerDist * mouseRepelStrength;
+            n.vx += (dx / dist) * force * 0.05;
+            n.vy += (dy / dist) * force * 0.05;
+          }
+        });
+      }
+
+      // 5. Apply velocity and bounds constraints
+      nodes.forEach((n) => {
+        n.x += n.vx;
+        n.y += n.vy;
+        n.vx *= friction;
+        n.vy *= friction;
+
+        // Keep inside board boundaries
+        const padding = n.radius + 20;
+        if (n.x < padding) { n.x = padding; n.vx *= -0.5; }
+        if (n.x > width - padding) { n.x = width - padding; n.vx *= -0.5; }
+        if (n.y < padding) { n.y = padding; n.vy *= -0.5; }
+        if (n.y > height - padding) { n.y = height - padding; n.vy *= -0.5; }
+      });
+
+      // 6. Render nodes position
+      nodes.forEach((n) => {
+        if (n.el) {
+          // Translate elements based on center coordinates
+          n.el.style.transform = `translate3d(${n.x - n.el.clientWidth / 2}px, ${n.y - n.el.clientHeight / 2}px, 0)`;
+        }
+      });
+
+      // 7. Render link line coordinates and update stroke color based on mouse distance
+      svgLines.forEach(({ sourceNode: s, targetNode: t, lineEl: line }) => {
+        line.setAttribute('x1', `${s.x}`);
+        line.setAttribute('y1', `${s.y}`);
+        line.setAttribute('x2', `${t.x}`);
+        line.setAttribute('y2', `${t.y}`);
+
+        // Highlight connected line if hovering source or target
+        const isHovered = s.radius > s.originalRadius || t.radius > t.originalRadius;
+        if (isHovered) {
+          line.setAttribute('stroke', `rgba(244, 196, 32, 0.4)`);
+          line.setAttribute('stroke-width', '2.5');
+        } else {
+          line.setAttribute('stroke', 'rgba(255, 255, 255, 0.08)');
+          line.setAttribute('stroke-width', '1.5');
+        }
+      });
+
+      if (isBoardVisible) {
+        animationFrameId = requestAnimationFrame(updatePhysics);
+      } else {
+        animationFrameId = 0;
+      }
+    }
+
+    // Under reduced motion the graph is laid out once and then left alone —
+    // no continuous physics loop at all.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      isBoardVisible = false;
+      updatePhysics();
+      return;
+    }
+
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isBoardVisible = entry.isIntersecting;
+      if (isBoardVisible && !animationFrameId) {
+        updatePhysics();
+      } else if (!isBoardVisible && animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = 0;
+      }
+    }, { threshold: 0.1 });
+    visibilityObserver.observe(board);
+
+    boardObserver = visibilityObserver;
+  }
+
+  let boardObserver: IntersectionObserver | null = null;
+
+  // Hook to page transitions
+  document.addEventListener('astro:page-load', () => {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    boardObserver?.disconnect();
+    initSkillsGraph();
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    boardObserver?.disconnect();
+  });
+</script>

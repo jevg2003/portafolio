@@ -1,0 +1,346 @@
+---
+import { ArrowRight, ChevronDown, Sparkles } from '@lucide/astro';
+---
+
+<section id="inicio" class="min-h-screen lg:h-screen relative flex items-center justify-center px-4 md:px-8 py-12 sm:py-20 lg:py-32 overflow-hidden max-w-7xl mx-auto w-full">
+  <!-- Glowing blob backdrops -->
+  <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-white/5 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] bg-neon-cyan/10 rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[350px] h-[350px] bg-neon-pink/10 rounded-full blur-[100px] pointer-events-none"></div>
+ 
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full relative z-10">
+    <!-- Left Column: Copy & Actions -->
+    <div class="lg:col-span-7 flex flex-col items-start text-left gap-6">
+      <!-- Profile Header with Avatar Target -->
+      <div class="flex items-center gap-3 lg:gap-4 mb-1 lg:mb-2 select-none min-h-[64px] lg:min-h-[80px]">
+        <div id="avatar-target" class="w-16 h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center relative shrink-0 opacity-0">
+          <div class="w-full h-full rounded-full border border-white/5 bg-white/2"></div>
+        </div>
+        <div id="avatar-info" class="flex flex-col gap-1 opacity-0 -translate-x-3 transition-all duration-300">
+          <span class="font-mono text-[9px] text-neon-cyan uppercase tracking-widest font-bold flex items-center gap-2">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            Disponible para Proyectos
+          </span>
+          <span class="text-xs text-text-secondary font-mono">
+            Estudiante de Ingeniería
+          </span>
+        </div>
+      </div>
+      
+      <!-- Heading with scramble effect -->
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1] font-sans">
+        Hola, soy Jorge Velásquez
+        <span class="block mt-1.5 lg:mt-2 gradient-text-cyan-pink text-glow-cyan font-extrabold select-none" id="scramble-title" data-value="FRONTEND CREATIVO.">FRONTEND CREATIVO.</span>
+      </h1>
+
+      <p class="text-text-secondary text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed">
+        Ingeniero de sistemas enfocado en el desarrollo de interfaces web interactivas. Diseño experiencias memorables que combinan estética fluida con metodologías de código limpio y desarrollo seguro.
+      </p>
+
+      <div class="flex flex-row gap-3 mt-2 lg:mt-4 w-full sm:w-auto">
+        <a href="#proyectos" 
+           class="flex-1 sm:flex-initial px-4 py-2.5 lg:px-6 lg:py-3.5 rounded-xl bg-white text-bg-dark font-mono text-xs lg:text-sm font-medium hover:bg-neon-cyan hover:text-bg-dark hover:shadow-[0_0_25px_rgba(244,196,32,0.4)] transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105 active:scale-95">
+          Ver Proyectos
+          <ArrowRight class="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+        </a>
+        <a href="#contacto" 
+           class="flex-1 sm:flex-initial px-4 py-2.5 lg:px-6 lg:py-3.5 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs lg:text-sm hover:border-neon-pink hover:bg-neon-pink/5 hover:shadow-[0_0_20px_rgba(255,153,0,0.15)] transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105 active:scale-95">
+          Contáctame
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Column: Interactive Terminal & Large Avatar -->
+    <div class="lg:col-span-5 w-full flex justify-center items-center relative min-h-[280px] sm:min-h-[340px] lg:min-h-[420px]">
+      
+      <!-- Avatar source container (Large Avatar on Load) -->
+      <div id="avatar-source" class="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-none">
+        <div id="hero-avatar" class="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 rounded-full p-1.5 bg-gradient-to-tr from-neon-cyan via-white to-neon-pink shadow-[0_0_30px_rgba(244,196,32,0.3)] flex items-center justify-center">
+          <div class="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center border border-white/10">
+            <img 
+              src="https://github.com/jevg2003.png" 
+              alt="Jorge Velásquez" 
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Terminal widget (revealed on scroll) -->
+      <div id="hero-terminal" class="w-full max-w-md glass-panel glass-panel-glow border-white/5 rounded-2xl shadow-2xl relative overflow-hidden group hover:border-neon-cyan/20 transition-colors duration-500 opacity-0 scale-95 z-10">
+        <!-- Header / Controls -->
+        <div class="px-4 py-2.5 lg:px-5 lg:py-3.5 border-b border-white/10 bg-white/5 flex items-center justify-between">
+          <div class="flex gap-2">
+            <span class="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-[#ff5f56]"></span>
+            <span class="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-[#ffbd2e]"></span>
+            <span class="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-[#27c93f]"></span>
+          </div>
+          <span class="text-[10px] lg:text-xs font-mono text-text-muted">developer.json</span>
+          <span class="w-4 h-4 text-text-muted select-none"></span>
+        </div>
+        
+        <!-- Terminal Body (Code elements formatted for staggered typing animation) -->
+        <div class="p-4 lg:p-6 font-mono text-[11px] sm:text-xs lg:text-sm text-text-secondary leading-relaxed bg-black/40">
+          <pre class="overflow-x-auto whitespace-pre-wrap"><code class="text-white flex flex-col gap-1 select-none">
+            <div class="terminal-line text-neon-pink">&#123;</div>
+            <div class="terminal-line pl-4"><span class="text-neon-cyan">"role"</span>: <span class="text-green-300">"Frontend Developer"</span>,</div>
+            <div class="terminal-line pl-4"><span class="text-neon-cyan">"location"</span>: <span class="text-green-300">"Cali, Colombia"</span>,</div>
+            <div class="terminal-line pl-4"><span class="text-neon-cyan">"stack"</span>: <span class="text-neon-pink">[</span><span class="text-green-300">"React"</span>, <span class="text-green-300">"Astro"</span>, <span class="text-green-300">"TypeScript"</span>, <span class="text-green-300">"Tailwind"</span><span class="text-neon-pink">]</span>,</div>
+            <div class="terminal-line pl-4"><span class="text-neon-cyan">"security"</span>: <span class="text-neon-pink">[</span><span class="text-green-300">"Secure Coding"</span>, <span class="text-green-300">"OWASP"</span>, <span class="text-green-300">"Auth"</span><span class="text-neon-pink">]</span>,</div>
+            <div class="terminal-line pl-4"><span class="text-neon-cyan">"tools"</span>: <span class="text-neon-pink">[</span><span class="text-green-300">"Git"</span>, <span class="text-green-300">"Docker"</span>, <span class="text-green-300">"pnpm"</span>, <span class="text-green-300">"Linux"</span><span class="text-neon-pink">]</span>,</div>
+            <div class="terminal-line pl-4"><span class="text-neon-cyan">"philosophy"</span>: <span class="text-green-300">"Write secure, fluid & beautiful code"</span></div>
+            <div class="terminal-line text-neon-pink">&#125;</div>
+          </code></pre>
+        </div>
+
+        <!-- Terminal Footer status info -->
+        <div class="px-4 py-1.5 lg:px-5 lg:py-2 border-t border-white/5 bg-white/2 flex items-center justify-between text-[9px] lg:text-[10px] font-mono text-text-muted">
+          <span>UTF-8</span>
+          <span>Ln 14, Col 26</span>
+          <span class="text-neon-cyan">✔ Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Scroll Down Arrow -->
+  <a href="#proyectos" 
+     class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-text-secondary hover:text-white transition-colors duration-300 group"
+     aria-label="Scroll Down">
+    <span class="font-mono text-[10px] tracking-widest uppercase">Scroll Down</span>
+    <ChevronDown class="w-5 h-5 animate-bounce text-neon-cyan group-hover:text-white transition-colors duration-300" />
+  </a>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Only this section's own pin ScrollTrigger — never touch triggers other
+  // components (ScrollLine's active-section detection, etc.) registered globally.
+  let heroTrigger: ScrollTrigger | null = null;
+
+  // Text Scramble Effect
+  class TextScramble {
+    el: HTMLElement;
+    chars: string;
+    queue: Array<{
+      from: string;
+      to: string;
+      start: number;
+      end: number;
+      char?: string;
+    }>;
+    frame: number;
+    resolvePromise!: (value: void | PromiseLike<void>) => void;
+    frameId!: number;
+
+    constructor(el: HTMLElement) {
+      this.el = el;
+      this.chars = '!<>-_\\/[]{}—=+*^?#________';
+      this.queue = [];
+      this.frame = 0;
+      this.update = this.update.bind(this);
+    }
+
+    setText(newText: string) {
+      const oldText = this.el.innerText;
+      const length = Math.max(oldText.length, newText.length);
+      const promise = new Promise<void>((resolve) => (this.resolvePromise = resolve));
+      this.queue = [];
+      
+      for (let i = 0; i < length; i++) {
+        const from = oldText[i] || '';
+        const to = newText[i] || '';
+        const start = Math.floor(Math.random() * 40);
+        const end = start + Math.floor(Math.random() * 40);
+        this.queue.push({ from, to, start, end });
+      }
+      
+      cancelAnimationFrame(this.frameId);
+      this.frame = 0;
+      this.update();
+      return promise;
+    }
+
+    update() {
+      let output = '';
+      let complete = 0;
+      
+      for (let i = 0, n = this.queue.length; i < n; i++) {
+        let { from, to, start, end, char } = this.queue[i];
+        if (this.frame >= end) {
+          complete++;
+          output += to;
+        } else if (this.frame >= start) {
+          if (!char || Math.random() < 0.28) {
+            char = this.randomChar();
+            this.queue[i].char = char;
+          }
+          output += `<span class="text-neon-cyan">${char}</span>`;
+        } else {
+          output += from;
+        }
+      }
+      
+      this.el.innerHTML = output;
+      
+      if (complete === this.queue.length) {
+        this.resolvePromise();
+      } else {
+        this.frameId = requestAnimationFrame(this.update);
+        this.frame++;
+      }
+    }
+
+    randomChar() {
+      return this.chars[Math.floor(Math.random() * this.chars.length)];
+    }
+  }
+
+  function initHero() {
+    // --- 1. Scramble Text ---
+    const titleElement = document.getElementById('scramble-title');
+    if (!titleElement) return;
+
+    const fx = new TextScramble(titleElement);
+    const text = titleElement.getAttribute('data-value') || titleElement.innerText;
+    
+    // Trigger scramble text
+    setTimeout(() => {
+      fx.setText(text);
+    }, 400);
+
+    // Scramble on hover
+    titleElement.addEventListener('mouseenter', () => {
+      fx.setText(text);
+    });
+
+    // --- 2. Scroll-Driven Morphing Avatar & Staggered Terminal Animation ---
+    const source = document.getElementById('hero-avatar');
+    const target = document.getElementById('avatar-target');
+    const terminal = document.getElementById('hero-terminal');
+    const info = document.getElementById('avatar-info');
+
+    if (source && target) {
+      // Kill only the previous run of THIS section's own trigger (re-init on
+      // resize) — never ScrollTrigger.getAll(), which would also wipe out
+      // triggers owned by other components (e.g. ScrollLine's section detector).
+      heroTrigger?.kill();
+      heroTrigger = null;
+
+      // Clear GSAP transforms temporarily to measure original layout coordinates accurately
+      gsap.set(source, { clearProps: "transform" });
+
+      // Force scroll to 0 momentarily to get accurate layout metrics
+      const originalScroll = window.scrollY;
+      if (originalScroll > 0) {
+        window.scrollTo(0, 0);
+      }
+
+      // Measure starting and ending boxes
+      const sRect = source.getBoundingClientRect();
+      const tRect = target.getBoundingClientRect();
+
+      // Restore scroll position
+      if (originalScroll > 0) {
+        window.scrollTo(0, originalScroll);
+      }
+
+      // Compute center-to-center offset deltas
+      const sCenterX = sRect.left + sRect.width / 2;
+      const sCenterY = sRect.top + sRect.height / 2;
+      const tCenterX = tRect.left + tRect.width / 2;
+      const tCenterY = tRect.top + tRect.height / 2;
+
+      const dx = tCenterX - sCenterX;
+      const dy = tCenterY - sCenterY;
+      const scaleVal = tRect.width / sRect.width;
+
+      // Set initial styles
+      gsap.set(source, { x: 0, y: 0, scale: 1, transformOrigin: 'center center' });
+      gsap.set(target, { opacity: 0 });
+      if (terminal) gsap.set(terminal, { opacity: 0, scale: 0.95 });
+      if (info) gsap.set(info, { opacity: 0, x: -10 });
+
+      const lines = document.querySelectorAll('.terminal-line');
+      if (lines.length > 0) {
+        gsap.set(lines, { opacity: 0, x: -8 });
+      }
+
+      // Create scroll-driven timeline with pinning (pinning is desktop-only for responsive height safety)
+      const isDesktop = window.innerWidth >= 1024;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#inicio',
+          start: 'top top',
+          end: isDesktop ? '+=100%' : '+=60%', // shorter scroll distance on mobile
+          scrub: 0.5, // 0.5s scrub delay for silky smooth scroll-linking
+          pin: isDesktop, // Lock the section on the screen during the transition on desktop only
+          invalidateOnRefresh: true,
+        }
+      });
+
+      heroTrigger = tl.scrollTrigger ?? null;
+
+      // Fly and scale avatar
+      tl.to(source, {
+        x: dx,
+        y: dy,
+        scale: scaleVal,
+        ease: 'power1.inOut'
+      }, 0);
+
+      // Fade in target circle outline as the avatar arrives
+      tl.to(target, {
+        opacity: 1,
+        ease: 'power1.in'
+      }, 0);
+
+      // Fade in terminal container
+      if (terminal) {
+        tl.to(terminal, {
+          opacity: 1,
+          scale: 1,
+          ease: 'power2.out'
+        }, 0.05);
+      }
+
+      // Stagger terminal lines typing effect
+      if (lines.length > 0) {
+        tl.to(lines, {
+          opacity: 1,
+          x: 0,
+          stagger: 0.06,
+          ease: 'power1.out',
+          duration: 0.4
+        }, 0.15);
+      }
+
+      // Fade in info text next to target avatar
+      if (info) {
+        tl.to(info, {
+          opacity: 1,
+          x: 0,
+          ease: 'power2.out'
+        }, 0.25);
+      }
+    }
+  }
+
+  // Recalculate on screen resize to ensure exact coordinates mapping
+  let resizeTimeout: number;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(initHero, 250);
+  });
+
+  document.addEventListener('astro:page-load', initHero);
+</script>

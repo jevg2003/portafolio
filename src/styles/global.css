@@ -1,0 +1,274 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", SFMono-Regular, Consolas, monospace;
+
+  /* Signal Yellow palette — warm ink base, single-hue accent family */
+  --color-bg-dark: #0b0b0c;
+  --color-card-dark: rgba(20, 19, 15, 0.55);
+  --color-border-dark: rgba(255, 255, 255, 0.08);
+
+  --color-neon-cyan: #f4c420;   /* signal — primary accent */
+  --color-neon-pink: #ff9900;   /* ember — secondary accent */
+  --color-neon-violet: #ffe9a8; /* pale — tertiary highlight */
+  --color-neon-blue: #ffd400;   /* gold — rare use */
+
+  --color-text-primary: #f6f3ea;
+  --color-text-secondary: #a6a192;
+  --color-text-muted: #6d695c;
+
+  /* Custom Transitions & Timings */
+  --ease-elastic: cubic-bezier(0.25, 0.8, 0.25, 1.25);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-premium: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Custom Base Styles */
+@layer base {
+  html {
+    scroll-behavior: initial; /* Lenis handles smooth scroll */
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    font-family: var(--font-body);
+  }
+
+  /* Ambient gradients live on their own fixed layer instead of on `body` with
+     `background-attachment: fixed`. A fixed background attachment opts the page
+     out of threaded/composited scrolling and repaints the full viewport every
+     scroll frame; a dedicated fixed pseudo-element paints once and is simply
+     composited afterwards. Visually identical: the gradients stay put while
+     content scrolls over them. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    /* Below the interactive canvas (-z-10) so the paint order stays exactly as
+       it was when these gradients lived on the body background. */
+    z-index: -20;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.02) 0%, transparent 35%),
+      radial-gradient(circle at 10% 20%, rgba(244, 196, 32, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(255, 153, 0, 0.04) 0%, transparent 40%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+  }
+
+  /* Custom selection styling */
+  ::selection {
+    background-color: #f4c420;
+    color: #0b0b0c;
+    text-shadow: none;
+  }
+
+  /* Custom Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-dark);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(244, 196, 32, 0.2);
+    border-radius: 9999px;
+    border: 2px solid var(--color-bg-dark);
+    transition: background 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 153, 0, 0.6);
+  }
+}
+
+/* Utilities for Premium Aesthetics */
+@layer utilities {
+  .glass-panel {
+    background: var(--color-card-dark);
+    /* A smaller blur radius is markedly cheaper to re-sample per frame on the
+       fixed navbar, which sits over scrolling content. */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    will-change: backdrop-filter;
+    border: 1px solid var(--color-border-dark);
+  }
+  
+  .glass-panel-glow {
+    box-shadow: 
+      0 8px 32px 0 rgba(0, 0, 0, 0.37),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(244, 196, 32, 0.45), 0 0 20px rgba(244, 196, 32, 0.18);
+  }
+
+  .text-glow-pink {
+    text-shadow: 0 0 10px rgba(255, 153, 0, 0.45), 0 0 20px rgba(255, 153, 0, 0.18);
+  }
+
+  .border-glow-cyan {
+    box-shadow: 0 0 15px rgba(244, 196, 32, 0.2), inset 0 0 15px rgba(244, 196, 32, 0.1);
+    border-color: rgba(244, 196, 32, 0.4);
+  }
+
+  .border-glow-pink {
+    box-shadow: 0 0 15px rgba(255, 153, 0, 0.2), inset 0 0 15px rgba(255, 153, 0, 0.1);
+    border-color: rgba(255, 153, 0, 0.4);
+  }
+
+  .gradient-text-cyan-pink {
+    background: linear-gradient(135deg, var(--color-neon-cyan) 0%, var(--color-neon-pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gradient-text-purple-cyan {
+    background: linear-gradient(135deg, var(--color-neon-violet) 0%, var(--color-neon-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Signature device: hazard stripe — used sparingly as a functional marker,
+     not decoration (badge backers, section flags) */
+  .hazard-stripe {
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--color-neon-cyan) 0px,
+      var(--color-neon-cyan) 10px,
+      #0b0b0c 10px,
+      #0b0b0c 20px
+    );
+  }
+}
+
+/* Scroll drawing line container */
+.scroll-progress-container {
+  position: fixed;
+  top: 0;
+  left: 4rem;
+  width: 2px;
+  height: 100vh;
+  z-index: 40; /* above <main> (z-10) — same z-index would lose to it since main comes later in the DOM */
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .scroll-progress-container {
+    display: none;
+  }
+}
+
+/* Active-node styling is expressed in CSS and driven purely by the `active`
+   class toggle, so scrolling never creates per-event GSAP tweens on
+   paint-heavy, non-compositable properties (box-shadow / border-color). */
+.scroll-node > div:first-child {
+  transform: scale(1);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.scroll-node.active > div:first-child {
+  transform: scale(1.25);
+  border-color: #f4c420;
+  box-shadow: 0 0 10px rgba(244, 196, 32, 0.4);
+}
+
+.scroll-node.active[data-section="proyectos"] > div:first-child {
+  border-color: #ff9900;
+  box-shadow: 0 0 10px rgba(255, 153, 0, 0.4);
+}
+
+.scroll-node.active[data-section="habilidades"] > div:first-child {
+  border-color: #ffe9a8;
+  box-shadow: 0 0 10px rgba(255, 233, 168, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-node > div:first-child {
+    transition: none;
+  }
+}
+
+/* --- View Transitions Premium Customizations --- */
+
+/* Customize the transition of all morphing shared elements (image, title, card) */
+::view-transition-group(*) {
+  animation-duration: 0.22s; /* Super snappy, instant 120Hz timing */
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* easeOutExpo: starts fast, settles instantly */
+}
+
+/* Customize the exit of the old page content and entry of new page content */
+::view-transition-old(root) {
+  animation: 0.08s cubic-bezier(0.4, 0, 1, 1) both fade-out-slide;
+}
+
+::view-transition-new(root) {
+  animation: 0.18s cubic-bezier(0.16, 1, 0.3, 1) both fade-in-slide;
+  animation-delay: 0.02s; /* Tiny delay for morph transitions to start */
+}
+
+@keyframes fade-out-slide {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px); /* Snappier, smaller travel distance */
+  }
+}
+
+@keyframes fade-in-slide {
+  from {
+    opacity: 0;
+    transform: translateY(8px); /* Snappier, smaller travel distance */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ambient drift for the skills board blobs — translate only, never scale.
+   Scaling a heavily blurred element re-rasterizes a very large texture every
+   frame; translating one only moves an already-rasterized layer. */
+@keyframes board-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(40px, 30px, 0); }
+}
+
+@keyframes board-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-30px, -40px, 0); }
+}
+
+.animate-board-drift-a {
+  animation: board-drift-a 14s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-board-drift-b {
+  animation: board-drift-b 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-board-drift-a,
+  .animate-board-drift-b {
+    animation: none;
+  }
+}

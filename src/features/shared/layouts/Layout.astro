@@ -1,0 +1,197 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import InteractiveCanvas from '../components/InteractiveCanvas.astro';
+import '../../../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "Jorge Velásquez | Portafolio", 
+  description = "Portafolio profesional de desarrollo frontend con diseños modernos y animaciones premium interactiva." 
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <ClientRouter />
+  </head>
+  <body class="bg-bg-dark text-text-primary selection:bg-neon-cyan/30 selection:text-white">
+    <!-- Signature strip: hazard marker, fixed to viewport top -->
+    <div class="hazard-stripe fixed top-0 left-0 right-0 h-[3px] z-[60]" aria-hidden="true"></div>
+
+    <!-- Interactive background -->
+    <InteractiveCanvas />
+
+    <!-- Main Content -->
+    <div id="app-content" class="relative z-10 min-h-screen flex flex-col">
+      <slot />
+    </div>
+
+    <!-- Scripts: smooth scroll & subtle hover interactions -->
+    <script>
+      import Lenis from 'lenis';
+      import 'lenis/dist/lenis.css';
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      let lenis: Lenis | null = null;
+      let gsapTickerUpdate: ((time: number) => void) | null = null;
+
+      const prefersReducedMotion = () =>
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Every in-page anchor on the site — header nav, mobile drawer, logo, and the
+      // hero CTAs — is a plain `<a href="#...">`. `scroll-behavior` is deliberately
+      // `initial` (Lenis owns smooth scrolling), so without this these links would
+      // hard-jump, fighting the very scroll Lenis is animating. One delegated
+      // listener covers the whole document instead of a handler per component.
+      function onAnchorClick(event: MouseEvent) {
+        // Let the browser handle modified clicks (new tab, download, etc.)
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey ||
+            event.ctrlKey || event.shiftKey || event.altKey) return;
+
+        const anchor = (event.target as Element | null)?.closest?.('a[href^="#"]');
+        if (!(anchor instanceof HTMLAnchorElement)) return;
+
+        const id = anchor.getAttribute('href')?.slice(1);
+        if (!id) return;
+
+        const target = document.getElementById(id);
+        if (!target) return;
+
+        event.preventDefault();
+
+        if (lenis) {
+          lenis.scrollTo(target);
+        } else {
+          // Reduced motion: no Lenis instance, so jump natively.
+          target.scrollIntoView();
+        }
+      }
+
+      function setupMagneticHover() {
+        // Subtle pull toward the cursor on a few chosen nodes (nav socials, submit button).
+        // `data-magnetic-bound` keeps the listeners from stacking up: this runs on every
+        // `astro:page-load`, and persisted elements would otherwise gain a duplicate pair
+        // of handlers per route change.
+        const magneticElements =
+          document.querySelectorAll<HTMLElement>('.magnetic-hover:not([data-magnetic-bound])');
+
+        magneticElements.forEach(el => {
+          el.dataset.magneticBound = 'true';
+
+          el.addEventListener('mousemove', (e: MouseEvent) => {
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            // `overwrite` keeps a single tween alive per element instead of
+            // queueing one per mousemove event.
+            gsap.to(el, { x: x * 0.25, y: y * 0.25, duration: 0.2, ease: 'power2.out', overwrite: 'auto' });
+          });
+
+          el.addEventListener('mouseleave', () => {
+            gsap.to(el, { x: 0, y: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)', overwrite: 'auto' });
+          });
+        });
+      }
+
+      function initApp() {
+        // Smooth Scroll (Lenis) - Create only once. Under reduced motion we skip
+        // Lenis entirely and leave native scrolling in place.
+        if (!lenis && !prefersReducedMotion()) {
+          lenis = new Lenis({
+            // Lenis damps toward the target with `lambda = lerp * 60`, so the response
+            // is exponential and frame-rate independent:
+            //   time to 50% = ln(2) / lambda      time to 90% = ln(10) / lambda
+            // That makes `lerp` a direct latency dial, not a vague "smoothness" knob:
+            //   0.10 -> 116ms / 384ms   (Lenis default; floaty)
+            //   0.14 ->  82ms / 274ms   (still reads as a lag before the page moves)
+            //   0.30 ->  38ms / 128ms   (responsive, still visibly smoothed)
+            //   0.40 ->  29ms /  96ms   (near-instant, smoothing barely perceptible)
+            // Raise this if the scroll feels slow to start; lower it for a heavier glide.
+            lerp: 0.3,
+            wheelMultiplier: 1.15,
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            syncTouch: true, // apply the same smoothing to touch drags on mobile
+          });
+
+          // Official Lenis <-> ScrollTrigger integration: ScrollTrigger reads
+          // scroll position from Lenis' own emitted scroll instead of polling.
+          lenis.on('scroll', ScrollTrigger.update);
+
+          // Drive Lenis from GSAP's ticker so both stay on the same rAF tick
+          gsapTickerUpdate = (time: number) => {
+            lenis?.raf(time * 1000);
+          };
+          gsap.ticker.add(gsapTickerUpdate);
+          gsap.ticker.lagSmoothing(0);
+
+          // Expose the instance so anchor-style nav (ScrollLine, header links) scrolls
+          // through Lenis instead of fighting it with a native instant/smooth jump
+          (window as any).__lenis = lenis;
+        }
+
+        setupMagneticHover();
+        scheduleTriggerRefresh();
+      }
+
+      // ScrollTrigger caches every start/end position the moment a trigger is
+      // created. On this page those measurements are taken while the document is
+      // still growing: the Google Fonts `@import` swaps in later (reflowing every
+      // heading) and the GitHub project thumbnails load after that. GSAP's built-in
+      // refresh only fires on the initial `window.load`, so it never covers a
+      // ClientRouter navigation. Without these, section boundaries stay pinned to a
+      // shorter document and the active nav node highlights the wrong section.
+      function scheduleTriggerRefresh() {
+        const refresh = () => ScrollTrigger.refresh();
+
+        document.fonts?.ready.then(refresh);
+
+        // Any below-the-fold image that resolves after init changes total height.
+        document.querySelectorAll('img').forEach((img) => {
+          if (!img.complete) img.addEventListener('load', refresh, { once: true });
+        });
+
+        if (document.readyState !== 'complete') {
+          window.addEventListener('load', refresh, { once: true });
+        }
+      }
+
+      // Clean up for route swaps to prevent memory leaks
+      document.addEventListener('astro:before-swap', () => {
+        if (lenis) {
+          lenis.destroy();
+          lenis = null;
+          (window as any).__lenis = null;
+        }
+        if (gsapTickerUpdate) {
+          gsap.ticker.remove(gsapTickerUpdate);
+          gsapTickerUpdate = null;
+        }
+        ScrollTrigger.getAll().forEach(t => t.kill());
+      });
+
+      // Initialize on load and re-initialize on client routing
+      document.addEventListener('astro:page-load', initApp);
+
+      // Bound once at module scope: this script body runs a single time per full
+      // page load, and the delegated listener survives ClientRouter swaps because
+      // `document` is never replaced. Registering it inside `initApp` would stack
+      // a duplicate handler on every navigation.
+      document.addEventListener('click', onAnchorClick);
+    </script>
+  </body>
+</html>

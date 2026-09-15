@@ -1,0 +1,205 @@
+---
+import { Send, Terminal, Sparkles } from '@lucide/astro';
+---
+
+<section id="contacto" class="min-h-screen py-32 px-4 md:px-8 max-w-7xl mx-auto w-full relative flex items-center justify-center">
+  <!-- Neon glow blur -->
+  <div class="absolute bottom-1/4 left-10 w-[300px] h-[300px] bg-neon-cyan/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+  <div class="w-full max-w-2xl relative z-10">
+    <!-- Header -->
+    <div class="flex flex-col items-center text-center gap-4 mb-16">
+      <div class="font-mono text-xs text-neon-cyan tracking-widest uppercase">/ conectar-ideas</div>
+      <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white font-sans">
+        Iniciemos un Proyecto
+      </h2>
+      <p class="text-text-secondary max-w-md text-sm md:text-base leading-relaxed">
+        ¿Tienes una propuesta o quieres charlar sobre diseño e interactividad? Rellena el formulario y hablemos.
+      </p>
+    </div>
+
+    <!-- Contact Panel -->
+    <div 
+      id="contact-panel" 
+      class="glass-panel glass-panel-glow border-white/5 rounded-3xl p-8 md:p-12 relative overflow-hidden transition-all duration-700"
+    >
+      <!-- Background overlay -->
+      <div class="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent pointer-events-none"></div>
+      
+      <!-- Interactive Form -->
+      <form id="portfolio-contact-form" class="flex flex-col gap-6 relative z-10 transition-opacity duration-500">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Name Input -->
+          <div class="relative group flex flex-col">
+            <input 
+              type="text" 
+              id="form-name" 
+              name="name" 
+              required 
+              placeholder=" " 
+              class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-neon-cyan/60 focus:bg-white/[0.08] focus:outline-none transition-all duration-300 peer"
+            />
+            <label 
+              for="form-name" 
+              class="absolute left-5 top-4 text-sm font-mono text-text-secondary transition-all duration-300 pointer-events-none peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-7 peer-focus:scale-85 peer-focus:text-neon-cyan peer-[:not(:placeholder-shown)]:-translate-y-7 peer-[:not(:placeholder-shown)]:scale-85 peer-[:not(:placeholder-shown)]:text-neon-cyan origin-left"
+            >
+              Nombre
+            </label>
+          </div>
+
+          <!-- Email Input -->
+          <div class="relative group flex flex-col">
+            <input 
+              type="email" 
+              id="form-email" 
+              name="email" 
+              required 
+              placeholder=" " 
+              class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-neon-cyan/60 focus:bg-white/[0.08] focus:outline-none transition-all duration-300 peer"
+            />
+            <label 
+              for="form-email" 
+              class="absolute left-5 top-4 text-sm font-mono text-text-secondary transition-all duration-300 pointer-events-none peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-7 peer-focus:scale-85 peer-focus:text-neon-cyan peer-[:not(:placeholder-shown)]:-translate-y-7 peer-[:not(:placeholder-shown)]:scale-85 peer-[:not(:placeholder-shown)]:text-neon-cyan origin-left"
+            >
+              Email
+            </label>
+          </div>
+        </div>
+
+        <!-- Subject Input -->
+        <div class="relative group flex flex-col">
+          <input 
+            type="text" 
+            id="form-subject" 
+            name="subject" 
+            required 
+            placeholder=" " 
+            class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-neon-cyan/60 focus:bg-white/[0.08] focus:outline-none transition-all duration-300 peer"
+          />
+          <label 
+            for="form-subject" 
+            class="absolute left-5 top-4 text-sm font-mono text-text-secondary transition-all duration-300 pointer-events-none peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-7 peer-focus:scale-85 peer-focus:text-neon-cyan peer-[:not(:placeholder-shown)]:-translate-y-7 peer-[:not(:placeholder-shown)]:scale-85 peer-[:not(:placeholder-shown)]:text-neon-cyan origin-left"
+          >
+            Asunto
+          </label>
+        </div>
+
+        <!-- Message Input -->
+        <div class="relative group flex flex-col">
+          <textarea 
+            id="form-message" 
+            name="message" 
+            rows="5" 
+            required 
+            placeholder=" " 
+            class="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-neon-cyan/60 focus:bg-white/[0.08] focus:outline-none transition-all duration-300 peer resize-none"
+          ></textarea>
+          <label 
+            for="form-message" 
+            class="absolute left-5 top-4 text-sm font-mono text-text-secondary transition-all duration-300 pointer-events-none peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-7 peer-focus:scale-85 peer-focus:text-neon-cyan peer-[:not(:placeholder-shown)]:-translate-y-7 peer-[:not(:placeholder-shown)]:scale-85 peer-[:not(:placeholder-shown)]:text-neon-cyan origin-left"
+          >
+            Mensaje
+          </label>
+        </div>
+
+        <!-- Submit Button (magnetic-hover) -->
+        <button 
+          type="submit" 
+          class="w-full px-8 py-4 mt-2 rounded-xl bg-gradient-to-r from-neon-cyan/80 to-neon-violet/80 border border-neon-cyan/40 text-white font-mono font-medium hover:border-neon-cyan hover:shadow-[0_0_30px_rgba(244,196,32,0.3)] transition-all duration-300 flex items-center justify-center gap-3 magnetic-hover relative overflow-hidden group/btn"
+        >
+          <div class="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 pointer-events-none"></div>
+          Enviar Mensaje
+          <Send class="w-4 h-4" />
+        </button>
+      </form>
+
+      <!-- Success Screen Terminal (hidden initially) -->
+      <div 
+        id="contact-success" 
+        class="hidden absolute inset-0 p-8 md:p-12 flex-col justify-center items-center text-center bg-black/60 backdrop-blur-md opacity-0 transition-opacity duration-500 z-20"
+      >
+        <div class="w-16 h-16 rounded-full bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center text-neon-cyan mb-6 shadow-[0_0_20px_rgba(244,196,32,0.2)]">
+          <Terminal class="w-7 h-7" />
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-2 font-mono tracking-wider">
+          CONEXIÓN ESTABLECIDA
+        </h3>
+        <p class="text-text-secondary text-sm font-mono max-w-sm mb-6 leading-relaxed">
+          [System]: Datos transmitidos exitosamente. Procesando respuesta de señal...
+        </p>
+        
+        <!-- Animated visual logs loading -->
+        <div class="w-full max-w-xs font-mono text-[10px] text-green-300 text-left bg-black/40 border border-white/5 p-4 rounded-lg flex flex-col gap-1.5 leading-normal">
+          <div>&gt; pnpm send-signal --to-alex</div>
+          <div class="text-neon-cyan">&gt; Transmisión: 100% completada</div>
+          <div class="text-text-muted">&gt; Conexión: Cerrando puerto seguro</div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-3 bg-green-300 animate-pulse inline-block"></span>
+            <span>Esperando respuesta...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+
+  function setupContact() {
+    const form = document.getElementById('portfolio-contact-form') as HTMLFormElement | null;
+    const successScreen = document.getElementById('contact-success');
+    const panel = document.getElementById('contact-panel');
+
+    if (!form || !successScreen || !panel) return;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Collect form data (dummy for showcase)
+      const data = {
+        name: (document.getElementById('form-name') as HTMLInputElement).value,
+        email: (document.getElementById('form-email') as HTMLInputElement).value,
+        subject: (document.getElementById('form-subject') as HTMLInputElement).value,
+        message: (document.getElementById('form-message') as HTMLTextAreaElement).value
+      };
+
+      // Animate form fading out and success screen coming in
+      const tl = gsap.timeline();
+
+      // Lock panel dimensions to prevent jumping during transitions
+      const rect = panel.getBoundingClientRect();
+      panel.style.height = `${rect.height}px`;
+
+      tl.to(form, {
+        opacity: 0,
+        y: -20,
+        duration: 0.4,
+        onComplete: () => {
+          form.classList.add('hidden');
+          successScreen.classList.remove('hidden');
+          successScreen.style.display = 'flex';
+        }
+      });
+
+      tl.to(successScreen, {
+        opacity: 1,
+        duration: 0.4
+      });
+
+      // Bouncy scale for the terminal log box inside success screen
+      tl.from(successScreen.querySelector('.max-w-xs'), {
+        scale: 0.9,
+        y: 10,
+        opacity: 0,
+        duration: 0.4,
+        ease: 'back.out(1.5)'
+      });
+
+      // Log success outputs to console
+      console.log('Contacto enviado exitosamente:', data);
+    });
+  }
+
+  document.addEventListener('astro:page-load', setupContact);
+</script>

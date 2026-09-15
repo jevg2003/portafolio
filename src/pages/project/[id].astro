@@ -1,0 +1,271 @@
+---
+import Layout from '../../features/shared/layouts/Layout.astro';
+import Navbar from '../../features/navigation/components/Navbar.astro';
+import { getProjects, getProjectReadme } from '../../features/projects/services/github';
+import { marked } from 'marked';
+import { ArrowLeft, ExternalLink, Cpu, BarChart, HardDrive } from '@lucide/astro';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({
+    params: { id: project.id }
+  }));
+}
+
+const { id } = Astro.params;
+
+const projects = await getProjects();
+const project = projects.find(p => p.id === id);
+
+if (!project) {
+  return Astro.redirect('/404');
+}
+
+// Fetch and parse the README.md content
+const rawReadme = await getProjectReadme(project.id);
+const readmeHtml = marked.parse(rawReadme);
+
+// Color styles based on primary language
+let accentColor = "#f4c420"; // Signal
+if (project.language === 'TypeScript' || project.language === 'Astro') {
+  accentColor = "#ff9900"; // Ember
+} else if (project.language === 'PHP' || project.language === 'Rust') {
+  accentColor = "#ffe9a8"; // Pale
+}
+---
+
+<Layout title={`${project.title} | Detalle de Proyecto`} description={project.description}>
+  <Navbar />
+
+  <main class="w-full min-h-screen pt-32 pb-24 px-4 md:pl-28 md:pr-12 max-w-7xl mx-auto flex flex-col justify-center relative">
+    <!-- Back Button -->
+    <div class="mb-12">
+      <a 
+        href="/#proyectos" 
+        class="inline-flex items-center gap-2 font-mono text-xs text-text-secondary hover:text-neon-cyan transition-colors duration-300 group"
+      >
+        <ArrowLeft class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" />
+        Volver a proyectos
+      </a>
+    </div>
+
+    <!-- Main Detail Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      
+      <!-- Left Column: Title, Tech Stack, & Explanations -->
+      <div class="lg:col-span-7 flex flex-col gap-8">
+        <!-- Title Header -->
+        <div>
+          <h1 
+            class="text-4xl md:text-5xl font-bold tracking-tight text-white font-sans mb-3"
+            transition:name={`project-title-${project.id}`}
+          >
+            {project.title}
+          </h1>
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono uppercase tracking-wider" style={`color: ${accentColor}`}>
+              {project.language}
+            </span>
+            <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+            {!project.github ? (
+              <span class="px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-mono text-[10px] uppercase font-semibold">
+                Proyecto Conjunto (Código Privado)
+              </span>
+            ) : project.isDeployed ? (
+              <span class="px-2 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-green-400 font-mono text-[10px] uppercase font-semibold">
+                Desplegado en Vercel
+              </span>
+            ) : (
+              <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 font-mono text-[10px] uppercase font-semibold">
+                Repositorio Local (Solo GitHub)
+              </span>
+            )}
+          </div>
+        </div>
+
+        <!-- Tech badges -->
+        <div class="flex flex-wrap gap-2" transition:name={`project-tags-${project.id}`}>
+          {project.tech.map((t) => (
+            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/5 text-xs font-mono text-text-secondary">
+              {t}
+            </span>
+          ))}
+        </div>
+
+        <!-- Links -->
+        <div class="flex flex-wrap gap-4" transition:name={`project-buttons-${project.id}`}>
+          {project.github ? (
+            <a 
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs hover:border-neon-cyan hover:bg-neon-cyan/5 transition-all duration-300 flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                <path d="M9 18c-4.51 2-5-2-7-2" />
+              </svg>
+              Código Fuente
+            </a>
+          ) : (
+            <div class="px-5 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-mono text-xs flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Repositorio Privado
+            </div>
+          )}
+          {project.isDeployed && project.live && (
+            <a 
+              href={project.live}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-5 py-3 rounded-xl bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/30 text-white font-mono text-xs hover:border-neon-cyan transition-all duration-300 flex items-center gap-2 shadow-[0_0_15px_rgba(244,196,32,0.05)] animate-pulse"
+            >
+              Abrir Aplicación
+              <ExternalLink class="w-4 h-4" />
+            </a>
+          )}
+        </div>
+
+        <!-- Project README (Explicación de lo que se hizo) -->
+        <div class="flex flex-col gap-4 mt-4">
+          <div class="flex items-center gap-2 font-mono text-xs font-bold text-white uppercase border-b border-white/5 pb-2">
+            <Cpu class="w-4 h-4 text-neon-pink" />
+            Explicación y Documentación del Proyecto
+          </div>
+          <div class="glass-panel border-white/5 p-6 rounded-2xl bg-black/40 readme-content overflow-hidden" transition:name={`project-card-${project.id}`}>
+            <div set:html={readmeHtml} />
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Media Preview & Stats -->
+      <div class="lg:col-span-5 flex flex-col gap-8 w-full sticky top-32">
+        <!-- Social Preview Image -->
+        <div class="glass-panel border-white/5 p-4 rounded-3xl shadow-2xl relative overflow-hidden group hover:border-neon-pink/20 transition-colors duration-500">
+          <div class="aspect-video w-full rounded-2xl overflow-hidden border border-white/5 relative bg-black/60 flex items-center justify-center">
+            <img 
+              src={project.image} 
+              alt={project.title}
+              class="w-full h-full object-cover"
+              transition:name={`project-image-${project.id}`}
+            />
+          </div>
+        </div>
+
+        <!-- Project Metrics Widgets -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Star Count -->
+          <div class="glass-panel border-white/5 p-5 rounded-2xl flex flex-col gap-2">
+            <span class="text-text-muted font-mono text-[9px] uppercase tracking-wider flex items-center gap-1.5">
+              <BarChart class="w-3.5 h-3.5 text-neon-cyan" />
+              Estrellas GitHub
+            </span>
+            <span class="text-sm font-semibold text-white font-mono flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              {project.stars}
+            </span>
+          </div>
+
+          <!-- Fork Count -->
+          <div class="glass-panel border-white/5 p-5 rounded-2xl flex flex-col gap-2">
+            <span class="text-text-muted font-mono text-[9px] uppercase tracking-wider flex items-center gap-1.5">
+              <HardDrive class="w-3.5 h-3.5 text-neon-pink" />
+              Forks de Red
+            </span>
+            <span class="text-sm font-semibold text-white font-mono flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="6" y1="3" x2="6" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" />
+              </svg>
+              {project.forks}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<style is:global>
+  /* Markdown scoped styling for the fetched README content */
+  .readme-content {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: #9ca3af;
+  }
+  .readme-content h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+  }
+  .readme-content h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .readme-content h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .readme-content p {
+    margin-bottom: 1rem;
+  }
+  .readme-content ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .readme-content ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .readme-content li {
+    margin-bottom: 0.35rem;
+  }
+  .readme-content code {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.25rem;
+    color: #ffb84d;
+  }
+  .readme-content pre {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+  }
+  .readme-content pre code {
+    color: #e5e7eb;
+    background-color: transparent;
+    padding: 0;
+    font-size: 0.75rem;
+  }
+  .readme-content a {
+    color: #f4c420;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .readme-content a:hover {
+    color: #fff;
+  }
+</style>

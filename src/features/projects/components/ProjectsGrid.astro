@@ -1,0 +1,126 @@
+---
+import { getProjects } from '../services/github';
+import ProjectCard from './ProjectCard.astro';
+
+// Fetch projects during build time
+const githubProjects = await getProjects();
+
+// Slice top 8 projects to keep grid looking balanced
+const projects = githubProjects.slice(0, 8);
+---
+
+<section id="proyectos" class="min-h-screen py-32 px-4 md:px-8 max-w-7xl mx-auto w-full relative">
+  <!-- Background Glow Blob -->
+  <div class="absolute top-1/2 left-0 -translate-y-1/2 w-[350px] h-[350px] bg-neon-pink/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+  <!-- Section Title -->
+  <div class="flex flex-col items-start gap-4 mb-20">
+    <div class="font-mono text-xs text-neon-pink tracking-widest uppercase">/ repositorios-github</div>
+    <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white font-sans">
+      Proyectos Destacados
+    </h2>
+    <p class="text-text-secondary max-w-xl text-sm md:text-base leading-relaxed">
+      Proyectos y repositorios sincronizados en tiempo real desde mi perfil de GitHub. Explora el código o abre las demostraciones interactivas en vivo.
+    </p>
+  </div>
+
+  <!-- Dynamic Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {projects.map((project) => (
+      <ProjectCard project={project} />
+    ))}
+  </div>
+</section>
+
+<script>
+  function setup3DTilt() {
+    const cards = document.querySelectorAll('.project-card-wrapper');
+
+    cards.forEach((card) => {
+      const cardElement = card.querySelector('a') as HTMLAnchorElement | null;
+      const img = card.querySelector('.project-card-img') as HTMLImageElement | null;
+
+      if (!cardElement) return;
+
+      // rAF latch: mousemove only records the latest cursor position, and the
+      // style write happens at most once per frame. Without this, a fast pointer
+      // fires dozens of style writes between two paints, all but one wasted.
+      let pendingFrame = 0;
+      let latestX = 0;
+      let latestY = 0;
+
+      const applyTilt = () => {
+        pendingFrame = 0;
+
+        const rect = cardElement.getBoundingClientRect();
+
+        // Cursor position relative to card dimensions
+        const x = latestX - rect.left;
+        const y = latestY - rect.top;
+
+        // Map cursor relative coordinates (from -0.5 to 0.5)
+        const px = (x / rect.width) - 0.5;
+        const py = (y / rect.height) - 0.5;
+
+        // Max degrees of rotation
+        const maxTilt = 8;
+
+        const tiltX = -py * maxTilt;
+        const tiltY = px * maxTilt;
+
+        // Apply 3D perspective transforms
+        cardElement.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(1.015, 1.015, 1.015)`;
+        cardElement.style.transition = 'transform 0.08s ease-out, border-color 0.5s, box-shadow 0.5s';
+
+        // Pull thumbnail slightly in opposite direction
+        if (img) {
+          img.style.transform = `scale(1.05) translate3d(${-px * 8}px, ${-py * 8}px, 0)`;
+          img.style.transition = 'transform 0.08s ease-out';
+        }
+      };
+
+      const handleMouseMove = (e: MouseEvent) => {
+        latestX = e.clientX;
+        latestY = e.clientY;
+        if (!pendingFrame) {
+          pendingFrame = requestAnimationFrame(applyTilt);
+        }
+      };
+
+      const handleMouseLeave = () => {
+        if (pendingFrame) {
+          cancelAnimationFrame(pendingFrame);
+          pendingFrame = 0;
+        }
+
+        // Reset tilt state smoothly
+        cardElement.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+        cardElement.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)';
+
+        if (img) {
+          img.style.transform = `scale(1) translate3d(0, 0, 0)`;
+          img.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        }
+      };
+
+      cardElement.addEventListener('mousemove', handleMouseMove);
+      cardElement.addEventListener('mouseleave', handleMouseLeave);
+    });
+
+    // Handle nested footer clicks correctly
+    const footerLinks = document.querySelectorAll('.project-footer-link');
+    footerLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const url = link.getAttribute('data-link');
+        if (url) {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      });
+    });
+  }
+
+  // Set up on initial page load and view transitions
+  document.addEventListener('astro:page-load', setup3DTilt);
+</script>

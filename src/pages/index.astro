@@ -1,17 +1,58 @@
 ---
-
+import Layout from '../features/shared/layouts/Layout.astro';
+import Navbar from '../features/navigation/components/Navbar.astro';
+import ScrollLine from '../features/shared/components/ScrollLine.astro';
+import Hero from '../features/home/components/Hero.astro';
+import ProjectsGrid from '../features/projects/components/ProjectsGrid.astro';
+import SkillsGraph from '../features/skills/components/SkillsGraph.astro';
+import ContactForm from '../features/contact/components/ContactForm.astro';
+import { Terminal, Heart } from '@lucide/astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Jorge Velásquez | Portafolio Frontend">
+  <!-- Nav Menu -->
+  <Navbar />
+
+  <!-- Left Sidebar Scroll Progress tracker -->
+  <ScrollLine />
+
+  <!-- Layout sections -->
+  <main class="w-full flex-grow relative z-10 px-4 md:pl-28 md:pr-12">
+    <!-- Hero Header -->
+    <Hero />
+
+    <!-- Projects Grid Section (Dynamic from GitHub) -->
+    <ProjectsGrid />
+
+    <!-- Skills Force Directed Graph Playground -->
+    <SkillsGraph />
+
+    <!-- Contact Form Section -->
+    <ContactForm />
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="w-full border-t border-white/5 bg-black/40 py-12 px-6 relative z-20 md:pl-28">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <!-- Identity -->
+      <div class="flex items-center gap-2 font-mono text-xs text-text-secondary select-none">
+        <Terminal class="w-4 h-4 text-neon-cyan" />
+        <span>DEV.PORTFOLIO // 2026</span>
+      </div>
+
+      <!-- Built info -->
+      <div class="flex items-center gap-1 font-mono text-[10px] text-text-muted select-none">
+        <span>Diseñado y construido con</span>
+        <Heart class="w-3 h-3 text-neon-pink fill-neon-pink animate-pulse" />
+        <span>usando Astro v5 & Tailwind</span>
+      </div>
+
+      <!-- Links -->
+      <div class="flex gap-6 font-mono text-xs text-text-secondary">
+        <a href="#inicio" class="hover:text-white transition-colors">/inicio</a>
+        <a href="https://github.com/jevg2003" target="_blank" rel="noopener noreferrer" class="hover:text-neon-cyan transition-colors">github</a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="hover:text-neon-pink transition-colors">linkedin</a>
+      </div>
+    </div>
+  </footer>
+</Layout>

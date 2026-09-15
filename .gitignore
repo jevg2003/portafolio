@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # tool-local cache
 .atl/
+
+.vercel
+.env*

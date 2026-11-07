@@ -1,43 +1,26 @@
-# Astro Starter Kit: Minimal
+# Portafolio frontend en Astro
 
-```sh
-npm create astro@latest -- --template minimal
+## Resumen
+
+Versión en Astro del portafolio de Jorge Velásquez. Presenta repositorios de GitHub, fichas de proyectos y un grafo interactivo de habilidades.
+
+## Qué incluye
+
+- Cuadrícula de proyectos alimentada por [el servicio de GitHub](src/features/projects/services/github.ts).
+- Rutas de detalle en [src/pages/project](src/pages/project) y un grafo en [src/features/skills](src/features/skills).
+- Interfaz oscura con Astro, Tailwind CSS, GSAP y Lenis.
+
+## Desarrollo local
+
+Usa Node.js 22.12 o posterior.
+
+```bash
+pnpm install
+pnpm dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Para generar el sitio, ejecuta `pnpm build`.
 
-## 🚀 Project Structure
+## English summary
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+An Astro version of Jorge Velásquez's portfolio. It presents GitHub repositories, project detail pages, and an interactive skills graph.

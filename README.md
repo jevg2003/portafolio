@@ -4,6 +4,12 @@ Portafolio de Jorge Velásquez con repositorios de GitHub, fichas de proyectos y
 
 [Ver el portafolio](https://portafolio-orpin-xi.vercel.app/) · [Código fuente](https://github.com/jevg2003/portafolio)
 
+## Vista del sitio
+
+![Sección de proyectos destacados del portafolio de Jorge Velásquez](docs/screenshot.png)
+
+Captura de la sección de proyectos publicada. Las fichas incorporan los datos de GitHub al generar el sitio.
+
 ## Qué incluye
 
 - Cuadrícula de proyectos con enlaces al repositorio y al sitio cuando GitHub informa una URL de despliegue.
